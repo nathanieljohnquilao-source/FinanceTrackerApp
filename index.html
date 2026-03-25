@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger — Personal Finance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ░░ GRAIN OVERLAY ░░ -->
+  <div class="grain"></div>
+
+  <!-- ░░ MASTHEAD ░░ -->
+  <header class="masthead">
+    <div class="masthead-rule"></div>
+    <div class="masthead-inner">
+      <div class="masthead-left">
+        <span class="masthead-vol">Vol. I</span>
+      </div>
+      <div class="masthead-center">
+        <h1 class="masthead-title">LEDGER</h1>
+        <p class="masthead-sub">Personal Finance Journal</p>
+      </div>
+      <div class="masthead-right">
+        <span class="masthead-date" id="today-date"></span>
+      </div>
+    </div>
+    <div class="masthead-rule"></div>
+    <div class="masthead-rule thin"></div>
+  </header>
+
+  <!-- ░░ SUMMARY BAR ░░ -->
+  <section class="summary-bar">
+    <div class="summary-item">
+      <span class="summary-label">Net Balance</span>
+      <span class="summary-value balance" id="net-balance">$0.00</span>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <span class="summary-label">Total Income</span>
+      <span class="summary-value income" id="total-income">$0.00</span>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <span class="summary-label">Total Expenses</span>
+      <span class="summary-value expense" id="total-expense">$0.00</span>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <span class="summary-label">Savings Rate</span>
+      <span class="summary-value rate" id="savings-rate">0%</span>
+    </div>
+  </section>
+
+  <!-- ░░ MAIN CONTENT ░░ -->
+  <main class="content">
+
+    <!-- ░░ LEFT COLUMN ░░ -->
+    <section class="col-left">
+
+      <!-- ADD TRANSACTION FORM -->
+      <div class="card form-card">
+        <div class="card-header">
+          <h2 class="card-title">New Entry</h2>
+          <div class="type-toggle">
+            <button class="type-btn active" id="btn-income" onclick="selectType('income')">Income</button>
+            <button class="type-btn" id="btn-expense" onclick="selectType('expense')">Expense</button>
+          </div>
+        </div>
+
+        <div class="form-body">
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">Description</label>
+              <input class="field-input" id="f-desc" type="text" placeholder="e.g. Freelance payment" maxlength="60" />
+            </div>
+            <div class="field field-sm">
+              <label class="field-label">Amount</label>
+              <div class="amount-wrap">
+                <span class="currency-sign">$</span>
+                <input class="field-input amount-input" id="f-amount" type="number" placeholder="0.00" min="0.01" step="0.01" />
+              </div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">Category</label>
+              <select class="field-input field-select" id="f-category">
+                <option value="">— select —</option>
+                <optgroup label="Income">
+                  <option value="Salary">Salary</option>
+                  <option value="Freelance">Freelance</option>
+                  <option value="Investment">Investment</option>
+                  <option value="Gift">Gift</option>
+                  <option value="Other Income">Other Income</option>
+                </optgroup>
+                <optgroup label="Expenses">
+                  <option value="Housing">Housing</option>
+                  <option value="Food">Food</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Health">Health</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Utilities">Utilities</option>
+                  <option value="Education">Education</option>
+                  <option value="Other">Other</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="field field-sm">
+              <label class="field-label">Date</label>
+              <input class="field-input" id="f-date" type="date" />
+            </div>
+          </div>
+          <button class="submit-btn" onclick="addTransaction()">
+            <span class="submit-label">Record Entry</span>
+            <span class="submit-arrow">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- SPENDING BREAKDOWN CHART -->
+      <div class="card chart-card">
+        <div class="card-header">
+          <h2 class="card-title">Expense Breakdown</h2>
+          <span class="card-meta" id="chart-period">All time</span>
+        </div>
+        <div class="chart-body" id="chart-body">
+          <div class="chart-empty">No expense data yet</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ░░ RIGHT COLUMN ░░ -->
+    <section class="col-right">
+
+      <!-- FILTERS -->
+      <div class="filters-bar">
+        <div class="filter-group">
+          <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">All</button>
+          <button class="filter-btn" data-filter="income" onclick="setFilter('income', this)">Income</button>
+          <button class="filter-btn" data-filter="expense" onclick="setFilter('expense', this)">Expenses</button>
+        </div>
+        <div class="filter-group">
+          <select class="filter-select" id="month-filter" onchange="applyFilters()">
+            <option value="">All months</option>
+          </select>
+        </div>
+        <button class="clear-btn" onclick="clearAll()" title="Clear all transactions">Clear all</button>
+      </div>
+
+      <!-- TRANSACTION LEDGER TABLE -->
+      <div class="card ledger-card">
+        <div class="ledger-header-row">
+          <span class="lh-date">Date</span>
+          <span class="lh-desc">Description</span>
+          <span class="lh-cat">Category</span>
+          <span class="lh-amt">Amount</span>
+          <span class="lh-del"></span>
+        </div>
+        <div class="ledger-body" id="ledger-body">
+          <div class="ledger-empty">
+            <span class="ledger-empty-icon">⊘</span>
+            <p>Your ledger is empty.</p>
+            <p>Add an entry to get started.</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ░░ TOAST ░░ -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
